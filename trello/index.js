@@ -5,9 +5,7 @@ const { authMiddleware } = require("./middleware");
 const { userModel, orgModel } = require("./models");
 const app = express();
 const port = 5400;
-mongoose.connect(
-  "mongodb+srv://sneha:sneha123@cluster0.ravopiu.mongodb.net/trello",
-);
+mongoose.connect("");
 app.listen(port, () => {
   console.log(`server running on port ${port}`);
 });
