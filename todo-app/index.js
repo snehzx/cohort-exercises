@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const { user, todo } = require("./models");
 const { authMiddleware } = require("./authMiddleware");
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 const app = express();
 mongoose.connect("");
 app.listen(3001);
@@ -10,6 +11,7 @@ app.use(express.json());
 app.post("/signup", async (req, res) => {
   const username = req.body.username;
   const password = req.body.password;
+  const hashedPassword = await bcrypt.hash(password, 10);
 
   const existUser = await user.findOne({
     username,
@@ -21,8 +23,8 @@ app.post("/signup", async (req, res) => {
     return;
   }
   const newUser = await user.create({
-    username,
-    password,
+    username: username,
+    password: hashedPassword,
   });
   return res.json({
     id: newUser._id,
@@ -33,20 +35,22 @@ app.post("/signin", async (req, res) => {
   const password = req.body.password;
   const findUser = await user.findOne({
     username,
-    password,
   });
   if (!findUser) {
     return res.status(404).json({
       message: "incorrect credentials",
     });
   }
-  const token = jwt.sign(
-    {
-      userId: findUser._id,
-    },
-    "1234@$",
-  );
-  return res.json({ token });
+  const passwordMatch = await bcrypt.compare(password, user.password);
+  if (findUser && passwordMatch) {
+    const token = jwt.sign(
+      {
+        userId: findUser.id,
+      },
+      "1234@$",
+    );
+    return res.json({ token });
+  }
 });
 app.post("/todos", authMiddleware, async (req, res) => {
   const userId = req.userId;
