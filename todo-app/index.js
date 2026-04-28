@@ -10,7 +10,7 @@ mongoose.connect("");
 app.listen(3001);
 app.use(express.json());
 const userSchema = z.object({
-  email: z.string().email(),
+  email: z.email(),
   password: z
     .string()
     .min(6)
