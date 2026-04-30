@@ -40,10 +40,68 @@
   Testing the server - run `npm run test-todoServer` command in terminal
  */
 const express = require("express");
+const { v4: uuid4 } = require("uuid");
 const bodyParser = require("body-parser");
 
 const app = express();
 
+let todos = [];
 app.use(bodyParser.json());
-
+app.get("/todos", (req, res) => {
+  return res.status(200).json(todos);
+});
+app.get("/todos/:id", (req, res) => {
+  const todoId = req.params.id;
+  const todo = todos.find((t) => t.id === String(todoId));
+  if (!todo) {
+    return res.status(404).json({
+      message: "todo not found",
+    });
+  }
+  return res.status(200).json(todo);
+});
+app.post("/todos", (req, res) => {
+  const { title, completed, description } = req.body;
+  const id = uuid4();
+  const todo = {
+    id,
+    title,
+    completed,
+    description,
+  };
+  todos.push(todo);
+  return res.status(201).json({
+    id: todo.id,
+  });
+});
+app.put("/todos/:id", (req, res) => {
+  const { title, completed, description } = req.body;
+  const todoId = req.params.id;
+  const todoExist = todos.find((t) => t.id === todoId);
+  if (!todoExist) {
+    return res.status(404);
+  }
+  const todo = {
+    todoId,
+    title,
+    completed,
+    description,
+  };
+  todos.push(todo);
+  return res.json(200);
+});
+app.delete("/todos/:id", (req, res) => {
+  const todoId = req.params.id;
+  const idExist = todos.find((t) => t.id === todoId);
+  if (!idExist) {
+    return res.status(404).json({
+      message: "todo not found",
+    });
+  }
+  todos = todos.filter((t) => t.id !== todoId);
+  return res.json(200);
+});
+app.use((_req, res, _next) => {
+  res.status(404).send();
+});
 module.exports = app;
