@@ -4,7 +4,9 @@ const app = express();
 app.use(express.json());
 
 app.get("/", function (req, res) {
-  res.sendFile("/Users/snehajha/desktop/cohort-exercises/backend/index.html");
+  res.sendFile(
+    "/Users/snehajha/desktop/cohort-exercises/backend/basics/index.html",
+  );
 });
 
 app.post("/sum", function (req, res) {
