@@ -4,6 +4,8 @@ const jwt = require("jsonwebtoken");
 const { authMiddleware } = require("./middleware");
 const { userModel, orgModel } = require("./models");
 const app = express();
+const { z } = require("zod");
+const bcrypt = require("bcrypt");
 const port = 5400;
 mongoose.connect("");
 app.listen(port, () => {
@@ -11,34 +13,60 @@ app.listen(port, () => {
 });
 
 app.use(express.json());
+const userSchema = z.object({
+  email: z.email(),
+  password: z
+    .string()
+    .min(6)
+    .regex(/[A-Z]/)
+    .regex(/[a-z]/)
+    .regex(/[0-9]/)
+    .regex(/[^A-Za-z0-9]/),
+  username: z.string().min(1),
+});
 app.post("/signup", async (req, res) => {
-  const username = req.body.username;
-  const password = req.body.password;
-  const userExist = await userModel.findOne({
-    username,
-  });
-  if (userExist) {
-    return res.status(404).json({ message: " this user already exists" });
+  try {
+    const validData = userSchema.parse(req.body);
+    const userExist = await userModel.findOne({
+      email: validData.email,
+    });
+    if (userExist) {
+      return res.status(404).json({ message: " this user already exists" });
+    }
+    const hashedPassword = await bcrypt.hash(validData.password, 10);
+    const newUser = await userModel.create({
+      email: validData.email,
+      password: hashedPassword,
+      username: validData.username,
+    });
+    return res.status(201).json({
+      id: newUser._id,
+      message: "user created",
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(400).json({
+      message: "signup error",
+      err: err.message,
+    });
   }
-  const newUser = await userModel.create({
-    username,
-    password,
-  });
-  return res.json({
-    id: newUser._id,
-    message: "user created",
-  });
 });
 app.post("/signin", async (req, res) => {
-  const username = req.body.username;
+  const email = req.body.email;
   const password = req.body.password;
+
   const findUser = await userModel.findOne({
-    username,
-    password,
+    email,
   });
   if (!findUser) {
     return res.status(404).json({
       message: " incorrect credentials",
+    });
+  }
+  const validPassword = await bcrypt.compare(password, findUser.password);
+  if (!validPassword) {
+    return res.status(411).json({
+      message: "wrong password",
     });
   }
   const token = jwt.sign(
@@ -142,11 +170,8 @@ app.delete("/members", authMiddleware, async (req, res) => {
       message: "no user with this data exists in our db",
     });
   }
-  organisation.members = organisation.members.filter(
-    (i) => i.toString() !== memberUser._id.toString(),
-  );
-  await organisation.save();
-  return res.json({
+
+  returnres.json({
     message: "member deleted",
   });
 });
