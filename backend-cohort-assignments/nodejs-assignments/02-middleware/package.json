@@ -8,14 +8,13 @@
     "test-requestcount": "npx jest ./tests/01-requestcount.spec.js",
     "test-authmiddleware": "npx jest ./tests/02-authmiddleware.spec.js",
     "test-logIncomingRequests": "npx jest ./tests/02-logIncomingRequests.spec.js"
-
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "express": "^4.18.2"
+    "express": "^4.22.1"
   },
   "devDependencies": {
     "@babel/plugin-transform-modules-commonjs": "^7.23.3",
