@@ -9,9 +9,30 @@
 // Implement the getDetails method to return a formatted string like:
 // "This is a 2020 Tesla Model S."
 
+export interface Vehicle {
+  make: String;
+  model: String;
+  year: number;
+  getDetails: () => String;
+}
+
+export class Car implements Vehicle {
+  make: String;
+  model: String;
+  year: number;
+
+  constructor(make: String, model: String, year: number) {
+    this.make = make;
+    this.model = model;
+    this.year = year;
+  }
+  getDetails() {
+    return `This is a ${this.year} ${this.make} ${this.model}.`;
+  }
+}
+
 // Example Input
 // const car = new Car('Tesla', 'Model S', 2020);
 // console.log(car.getDetails());
 // Example Output
 // "This is a 2020 Tesla Model S."
-

@@ -2,3 +2,7 @@
 // Type the function parameters appropriately.
 // Example Input: runLater(() => console.log("Hello!"), 2000)
 // Example Output: Prints "Hello!" after 2 seconds.
+export function runLater(f: () => void, ms: number) {
+  //ReturnType<typeof setTimeout>
+  return setTimeout(f, ms);
+}

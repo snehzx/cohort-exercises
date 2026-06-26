@@ -3,3 +3,9 @@
 // Ensure the function has proper type annotations.
 // Example Input: num = 15, divisor = 5
 // Example Output: true
+export function isMultipleOf(num1: number, num2: number): boolean {
+  if (num1 % num2 === 0) {
+    return true;
+  }
+  return false;
+}

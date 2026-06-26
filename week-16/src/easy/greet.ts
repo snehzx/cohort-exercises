@@ -2,3 +2,10 @@
 // Use a type annotation for the input and output.
 // Example Input: "Pixy Glee"
 // Example Output: "Hello, P.G!"
+export function greetWithInitials(fullName: string): string {
+  const initials = fullName
+    .split(" ")
+    .map((t) => t[0].toUpperCase())
+    .join(".");
+  return `Hello, ${initials}.`;
+}
