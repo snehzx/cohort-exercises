@@ -1,3 +1,5 @@
+//generics are for funcitions classes or types that access parameterss
+
 function getLastEle<T>(arr: T[]): T | undefined {
   return arr[0];
 }
