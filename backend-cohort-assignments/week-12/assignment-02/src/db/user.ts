@@ -10,12 +10,16 @@ import { client } from "..";
  */
 
 export async function createUser(
-    username: string,
-    password: string,
-    name: string
-  ) {
- 
-  }
+  username: string,
+  password: string,
+  name: string,
+) {
+  const query = `INSERT INTO users (username , password , name) VALUES  ($1,$2,$3) RETURNING * `;
+  const values = [username, password, name];
+
+  const user = await client.query(query, values);
+  return user.rows[0];
+}
 /*
  * Should return the User object
  * {
@@ -25,8 +29,10 @@ export async function createUser(
  * }
  */
 
-
 export async function getUser(userId: number) {
+  const query = ` SELECT * FROM users WHERE id=$1 `;
+  const values = [userId];
 
+  const user = await client.query(query, values);
+  return user.rows[0];
 }
-

@@ -1,4 +1,3 @@
-
 import { client } from "..";
 import { QueryResult } from "pg";
 
@@ -32,11 +31,11 @@ export async function createTravelPlan(
   destinationCountry: string,
   startDate: string,
   endDate: string,
-  budget: number
+  budget: number,
 ) {
   const query =
     "INSERT INTO travel_plans (user_id, title, destination_city, destination_country, start_date, end_date, budget) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *";
-  const result = await client.query(query, [
+  const result = await client.query<TravelPlan>(query, [
     userId,
     title,
     destinationCity,
@@ -55,7 +54,7 @@ export async function createTravelPlan(
 export async function updateTravelPlan(
   planId: number,
   title?: string,
-  budget?: number
+  budget?: number,
 ) {
   const query =
     "UPDATE travel_plans SET title = COALESCE($2, title), budget = COALESCE($3, budget) WHERE id = $1 RETURNING *";

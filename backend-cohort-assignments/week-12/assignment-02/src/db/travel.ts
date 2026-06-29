@@ -1,4 +1,3 @@
-
 import { client } from "..";
 import { QueryResult } from "pg";
 
@@ -32,9 +31,21 @@ export async function createTravelPlan(
   destinationCountry: string,
   startDate: string,
   endDate: string,
-  budget: number
-) {
+  budget: number,
+): Promise<TravelPlan> {
+  const query = `INSERT INTO travel_plans (user_id, title, destination_city, destination_country, start_date, end_date, budget) VALUES ($1 , $2 , $3 , $4 , $5 , $6 , $7) RETURNING *`;
+  const values = [
+    userId,
+    title,
+    destinationCity,
+    destinationCountry,
+    startDate,
+    endDate,
+    budget,
+  ];
+  const plans = await client.query<TravelPlan>(query, values);
 
+  return plans.rows[0];
 }
 
 /*
@@ -44,9 +55,13 @@ export async function createTravelPlan(
 export async function updateTravelPlan(
   planId: number,
   title?: string,
-  budget?: number
-) {
-
+  budget?: number,
+): Promise<TravelPlan> {
+  //coalesce - return the first non nul ele
+  const query = `UPDATE travel_plans SET title = COALESCE($2, title), budget = COALESCE($3, budget) WHERE id = $1 RETURNING * `;
+  const values = [planId, title, budget];
+  const res = await client.query(query, values);
+  return res.rows[0];
 }
 
 /*
@@ -63,5 +78,8 @@ export async function updateTravelPlan(
  * }]
  */
 export async function getTravelPlans(userId: number) {
-
+  const query = `SELECT * FROM travel_plans WHERE user_id=$1`;
+  const values = [userId];
+  const res = await client.query(query, values);
+  return res.rows;
 }
