@@ -1,6 +1,6 @@
 import express from "express";
 import mongoose from "mongoose";
-import { config } from "./config.ts";
+import { config } from "./config";
 
 const app = express();
 
@@ -18,11 +18,11 @@ connectDB()
     process.exit(1);
   });
 
+app.use(express.json());
+
 //routes
 import userRouter from "./routes/user.js";
 import accountRouter from "./routes/account.js";
 
-app.use("api/v1/user", userRouter);
-app.use("api/v1/account", accountRouter);
-
-app.use(express.json());
+app.use("/api/v1/user", userRouter);
+app.use("/api/v1/account", accountRouter);
