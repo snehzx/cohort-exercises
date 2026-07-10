@@ -1,0 +1,60 @@
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id          String    @id     @default(uuid())
+  email       String    @unique
+  password    String
+  name        String
+  role        Role      @default(STUDENT)
+  createdAt   DateTime  @default(now())
+  courses     Course[]
+  purchases   Purchase[]
+}
+
+model Course{
+  id            String       @id   @default(uuid())
+  title         String   
+  description   String?
+  price         Int
+  instructor    User         @relation(fields:[instructorId] , references:[id])
+  instructorId  String
+  lessons       Lesson[]
+  purchases     Purchase[]
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+} 
+
+model Lesson{
+  id          String    @id   @default(uuid())
+  title       String
+  content     String
+  course      Course    @relation(fields: [courseId] , references: [id])
+  courseId    String
+  createdAt   DateTime  @default(now())
+}
+
+model Purchase{
+  id           String     @id @default(uuid())
+  user         User       @relation(fields: [userId] , references: [id])
+  userId       String
+  course       Course      @relation(fields: [courseId] , references: [id])
+  courseId     String
+  createdAt    DateTime    @default(now())
+  amount       Int         @default(0)
+  @@unique([userId , courseId]) // @@ is model level attribute applies to entire model unlike @
+}
+
+enum Role{
+  STUDENT 
+  INSTRUCTOR
+}
+// ideally user and courses is many-many which would be explicit but
+//here purchase join them and create a implicit many-many reln and it can also have many extra feild
