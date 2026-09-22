@@ -1,0 +1,32 @@
+{
+  "name": "hotel-cms-test",
+  "module": "index.test.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:verbose": "vitest run --reporter=verbose"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
+    "@types/bun": "latest",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/pg": "^8.20.3",
+    "prisma": "^7.9.1"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@prisma/adapter-pg": "^7.9.1",
+    "@prisma/client": "^7.9.1",
+    "bcrypt": "^6.0.0",
+    "express": "^5.2.1",
+    "hotel-cms-test": ".",
+    "jsonwebtoken": "^9.0.3",
+    "vitest": "^4.0.17",
+    "zod": "^4.4.3"
+  }
+}

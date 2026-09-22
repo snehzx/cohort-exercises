@@ -1,0 +1,96 @@
+
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User{
+  id   String  @id @default(uuid())
+  email String @unique
+  password String
+  phone String?  @db.VarChar(20)
+  name String
+  role Role @default(customer)
+  hotels Hotel[]
+  bookings Booking[]
+  reviews Review[]
+  createdAt DateTime @default(now())
+
+}
+
+model Hotel{
+  id String @id @default(uuid())
+  name String
+  description  String?
+  owner User @relation(fields: [ownerId] , references: [id])
+  ownerId String
+  bookings Booking[]
+  city String
+  country String
+  amenities String[] @default([])
+  rooms Room[]
+  reviews Review[] 
+  rating Decimal @db.Decimal(2,1) @default(0.0)
+  createdAt DateTime @default(now()) 
+
+}
+
+model Booking{
+  id String @id @default(uuid())
+  checkInDate DateTime @default(now())
+  checkOutDate DateTime
+  guests Int
+  user User @relation(fields: [userId] , references: [id])
+  userId String
+  hotel Hotel @relation(fields: [hotelId] ,references: [id])
+  hotelId String
+  totalPrice Decimal @db.Decimal(10,2)
+  status Status @default(pending)
+  bookingDate DateTime  @default(now())
+  cancelledAt DateTime?
+  room Room @relation(fields: [roomId] , references: [id])
+  roomId String
+  review Review?
+
+}
+
+model Room{
+  id String @id @default(uuid())
+  roomNumber String @db.VarChar(50)
+  roomType String @db.VarChar(100)
+  pricePerNight Decimal @db.Decimal(10,2)
+  maxOccupancy Int
+  hotel Hotel @relation(fields: [hotelId] , references: [id])
+  hotelId String
+  bookings Booking[]
+ @@unique([hotelId , roomNumber])
+}
+
+model Review{
+  id String @id @default(uuid())
+  user User @relation(fields: [userId] , references: [id])
+  userId String
+  hotel Hotel @relation(fields: [hotelId] , references: [id])
+  hotelId String
+  booking Booking @relation(fields: [bookingId] , references: [id])
+  bookingId String @unique
+  rating Float @default(0.0)
+  comment String
+  @@unique([userId , bookingId])
+}
+
+enum Role{
+  owner
+  customer
+}
+
+enum Status{
+  pending
+  confirmed
+  cancelled
+}
