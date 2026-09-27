@@ -1,0 +1,11 @@
+services:
+  mongo-1:
+    image: mongo:7
+    container_name: live-att
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo-1-data:/data/db
+
+volumes:
+  mongo-1-data:
