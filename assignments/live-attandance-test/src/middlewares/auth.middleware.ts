@@ -48,4 +48,5 @@ export const authoriseTeacher = (
       .status(403)
       .json(new ApiError("Forbidden, teacher access required"));
   }
+  next();
 };

@@ -3,7 +3,7 @@ import connectDb from "./db";
 import http from "http";
 
 const app = express();
-const server = http.createServer(app);
+export const server = http.createServer(app);
 
 app.use(express.json());
 
