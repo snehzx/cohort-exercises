@@ -1,9 +1,9 @@
-import mongoose from "mongoose";
 import type { Request, Response } from "express";
 import { attendanceSchema } from "../validators/schema";
 import { ApiError } from "../utils/apiError";
 import { Class } from "../models/class.model";
 import { ApiResponse } from "../utils/apiResponse";
+import { activeSessions } from "../session/activeSession";
 
 export const attendance = async (req: Request, res: Response) => {
   const { success, data } = attendanceSchema.safeParse(req.body);
@@ -20,10 +20,19 @@ export const attendance = async (req: Request, res: Response) => {
   if (req.user?.id !== existClass.teacherId?.toString()) {
     return res.status(403).json(new ApiError("Forbidden, not class teacher"));
   }
+
+  activeSessions.set(classId, {
+    classId,
+    startedAt: new Date().toISOString(),
+    attendance: {},
+  });
+  console.log([...activeSessions.keys()]);
+  console.log(activeSessions.size);
+
   return res.status(200).json(
     new ApiResponse({
-      classId,
-      startedAt: new Date().toISOString(),
+      classId: activeSessions.get(classId)?.classId,
+      startedAt: activeSessions.get(classId)?.startedAt,
     }),
   );
 };

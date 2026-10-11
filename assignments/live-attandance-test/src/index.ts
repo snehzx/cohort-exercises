@@ -1,11 +1,5 @@
-import express from "express";
 import connectDb from "./db";
-import http from "http";
-
-const app = express();
-export const server = http.createServer(app);
-
-app.use(express.json());
+import { server, app } from "./server.ts";
 
 connectDb()
   .then(() => {
@@ -21,6 +15,7 @@ import authRouter from "./routes/auth.route.ts";
 import classRouter from "./routes/class.route.ts";
 import studentRouter from "./routes/student.route.ts";
 import attRouter from "./routes/attendance.route.ts";
+import "./ws/index.ts";
 
 app.use("/auth", authRouter);
 app.use("/class", classRouter);
