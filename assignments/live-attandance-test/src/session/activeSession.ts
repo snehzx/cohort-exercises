@@ -1,6 +1,6 @@
 export interface ActiveSession {
-  classId: string;
-  startedAt: string;
+  classId: string | null;
+  startedAt: string | null;
   attendance: Record<string, "present" | "absent">;
 }
 

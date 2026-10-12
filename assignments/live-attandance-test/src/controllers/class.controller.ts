@@ -118,7 +118,10 @@ export const myAttendance = async (req: Request, res: Response) => {
       .status(403)
       .json(new ApiError("Forbidden, not enrolled in class"));
   }
-  const att = await Attendance.findOne({ classId });
+  const att = await Attendance.findOne({
+    classId,
+    studentId: req.user?.id,
+  });
 
   return res.status(200).json(
     new ApiResponse({
