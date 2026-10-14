@@ -11,3 +11,108 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+model User{
+  id String @id @default(uuid())
+  name String 
+  email String @unique
+  password String
+  role Role @default(contestee)
+  createdAt DateTime @default(now())
+  contests Contest[]
+  mcqSubmissions McqSubmission[]
+  dsaSubmissions DsaSubmission[]
+}
+
+model Contest{
+  id String @id @default(uuid())
+  title String
+  description String
+  createdAt DateTime @default(now())
+  startTime DateTime @default(now())
+  endTime DateTime
+  creatorId String
+  creator User @relation(fields: [creatorId] , references:[id])
+  mcqQuestions McqQuestion[]
+  dsaProblems DsaProblem[]
+
+}
+
+model McqQuestion{
+  id String @id @default(uuid())
+  contestId String
+  questionText String
+  options Json
+  correctOptionIndex Int
+  createdAt DateTime @default(now())
+  points Int @default(1)
+  contest Contest @relation(fields: [contestId] , references: [id])
+  questions McqSubmission[]
+}
+
+model DsaProblem{
+  id String @id @default(uuid())
+  title String
+  description String
+  tags String[]
+  points Int @default(100)
+  timeLimit Int @default(2000)
+  memoryLimit Int @default(256)
+  createdAt DateTime @default(now())
+  testCases TestCase[]
+  contestId String
+  contest Contest @relation(fields: [contestId] , references: [id])
+  dsaSubmissions DsaSubmission[]
+}
+
+model McqSubmission{
+  id String @id @default(uuid())
+  isCorrect Boolean
+  pointsEarned Int @default(0)
+  submittedAt DateTime
+  selectedOptionIndex Int
+  userId String
+  user User @relation(fields: [userId] , references: [id])
+  questionId String
+  question McqQuestion @relation(fields: [questionId] , references: [id])
+
+  @@unique([userId , questionId])
+}
+
+model DsaSubmission{
+  id String @id @default(uuid())
+  code String
+  language String @db.VarChar(50)
+  status Status 
+  pointsEarned Int @default(0)
+  testCasesPassed Int @default(0)
+  totalTestCases Int @default(0)
+  userId String
+  executionTime Int
+  submittedAt DateTime @default(now())
+  user User @relation(fields: [userId] , references: [id])
+  problemId String
+  problem DsaProblem @relation(fields: [problemId] , references: [id])
+
+}
+
+model TestCase{
+  id String @id @default(uuid())
+  problemId String
+  problem DsaProblem @relation(fields: [problemId] , references: [id])
+  input String
+  expectedOutput String
+  isHidden Boolean @default(false)
+  createdAt DateTime @default(now())
+}
+
+enum Role{
+  contestee
+  creator
+}
+enum Status{
+  accepted
+  wrong_answer
+  time_limit_exceeded
+  runtime_error
+}
