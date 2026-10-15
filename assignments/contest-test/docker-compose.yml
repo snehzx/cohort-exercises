@@ -1,0 +1,16 @@
+services:
+  postgres-1:
+    image: postgres:16
+    container_name: contest-test
+    ports:
+      - "5433:5432"
+    restart: unless_stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: secret123
+      POSTGRES_DB: contest-test
+    volumes:
+      - postgres-1-data:/var/lib/postgresql/data
+
+volumes:
+  postgres-1-data:

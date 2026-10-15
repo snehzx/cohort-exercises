@@ -38,11 +38,10 @@ export const authenticateUser = (
   }
 };
 
-export const authoriseUser = (role: string) => {
-  (req: Request, res: Response, next: NextFunction) => {
+export const authoriseUser =
+  (role: string) => (req: Request, res: Response, next: NextFunction) => {
     if (role !== req.user?.role) {
       return res.status(403).json(new ApiError("FORBIDDEN"));
     }
     next();
   };
-};
