@@ -5,7 +5,7 @@ import {
   dsa,
   getContest,
   getLeaderboard,
-  submit,
+  submitMcq,
 } from "../controllers/contests.controller";
 import { authenticateUser, authoriseUser } from "../middlewares/authenticate";
 
@@ -19,8 +19,17 @@ router.post(
   authoriseUser("creator"),
   addMcq,
 );
-router.post("/:contestId/mcq/:questionId/submit", submit);
-router.post("/:contestId/dsa", dsa);
-router.get("/contests/:contestId/leaderboard", getLeaderboard);
+router.post(
+  "/:contestId/mcq/:questionId/submit",
+  authenticateUser,
+  authoriseUser("contestee"),
+  submitMcq,
+);
+router.post("/:contestId/dsa", authenticateUser, authoriseUser("creator"), dsa);
+router.get(
+  "/contests/:contestId/leaderboard",
+  authenticateUser,
+  getLeaderboard,
+);
 
 export default router;

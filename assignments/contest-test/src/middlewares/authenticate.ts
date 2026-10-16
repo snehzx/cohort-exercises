@@ -25,12 +25,12 @@ export const authenticateUser = (
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
       id: string;
-      role: string;
+      role: "creator" | "contestee";
     };
 
     req.user = {
-      id: req.user!.id,
-      role: req.user!.role,
+      id: decoded.id,
+      role: decoded.role,
     };
     next();
   } catch (error) {

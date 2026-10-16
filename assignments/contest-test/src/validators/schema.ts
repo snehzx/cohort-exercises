@@ -25,3 +25,30 @@ export const mcqsSchema = z.object({
   correctOptionIndex: z.number().int().min(0).max(4),
   points: z.number(),
 });
+
+export const mcqsSubmitSchema = z.object({
+  selectedOptionIndex: z.number().int().min(0),
+});
+
+export const dsaSchema = z.object({
+  title: z.string(),
+  description: z.string(),
+  tags: z.array(z.string()).default([]),
+  points: z.number().int().positive().default(100),
+  timeLimit: z.number().default(2000),
+  memoryLimit: z.number().default(256),
+  testCases: z
+    .array(
+      z.object({
+        input: z.string(),
+        expectedOutput: z.string(),
+        isHidden: z.boolean().default(false),
+      }),
+    )
+    .min(1),
+});
+
+export const dsaSubmitSchema = z.object({
+  code: z.string().min(1),
+  language: z.string(),
+});

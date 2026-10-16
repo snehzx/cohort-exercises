@@ -32,11 +32,7 @@ export const signup = async (req: Request, res: Response) => {
         password: true,
       },
     });
-    return res.status(201).json(
-      new ApiResponse({
-        user,
-      }),
-    );
+    return res.status(201).json(new ApiResponse(user));
   } catch (error) {
     return;
   }
