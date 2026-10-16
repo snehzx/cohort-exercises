@@ -4,12 +4,7 @@ import { authenticateUser, authoriseUser } from "../middlewares/authenticate";
 
 const router = Router();
 
-router.post(
-  "/:problemId/submit",
-  authenticateUser,
-  authoriseUser("contestee"),
-  submitSoln,
-);
+router.post("/:problemId/submit", authenticateUser, submitSoln);
 router.get("/:problemId", authenticateUser, getProblem);
 
 export default router;

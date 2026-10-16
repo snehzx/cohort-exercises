@@ -3,6 +3,7 @@ import { ApiError } from "../utils/apiError";
 import prisma from "../db";
 import { ApiResponse } from "../utils/apiResponse";
 import { dsaSubmitSchema } from "../validators/schema";
+import { judgeSubmission } from "../utils/dsaSoln";
 
 export const getProblem = async (req: Request, res: Response) => {
   const problemId = req.params.problemId;
@@ -10,7 +11,7 @@ export const getProblem = async (req: Request, res: Response) => {
   if (typeof problemId !== "string") {
     return res.status(404).json(new ApiError("PROBLEM_NOT_FOUND"));
   }
-  const problem = prisma.dsaProblem.findUnique({
+  const problem = await prisma.dsaProblem.findUnique({
     where: {
       id: problemId,
     },
@@ -23,7 +24,7 @@ export const getProblem = async (req: Request, res: Response) => {
   }
   const testCases = await prisma.testCase.findMany({
     where: {
-      id: problemId,
+      problemId: problem.id,
       isHidden: false,
     },
     select: {
@@ -31,9 +32,9 @@ export const getProblem = async (req: Request, res: Response) => {
       expectedOutput: true,
     },
   });
-  return res
-    .status(200)
-    .json(new ApiResponse({ ...problem, visibleTestCases: testCases }));
+
+  const response = { ...problem, visibleTestCases: testCases };
+  return res.status(200).json(new ApiResponse(response));
 };
 export const submitSoln = async (req: Request, res: Response) => {
   const { success, data } = dsaSubmitSchema.safeParse(req.body);
@@ -54,9 +55,23 @@ export const submitSoln = async (req: Request, res: Response) => {
     where: {
       id: problemId,
     },
+    include: {
+      testCases: true,
+      contest: {
+        select: {
+          creatorId: true,
+        },
+      },
+    },
   });
   if (!problem) {
     return res.status(404).json(new ApiError("PROBLEM_NOT_FOUND"));
+  }
+  if (
+    req.user!.role === "creator" &&
+    problem.contest.creatorId === req.user!.id
+  ) {
+    return res.status(403).json(new ApiError("FORBIDDEN"));
   }
   const contest = await prisma.contest.findUnique({
     where: {
@@ -71,10 +86,37 @@ export const submitSoln = async (req: Request, res: Response) => {
   if (contest.startTime > now || contest.endTime < now) {
     return res.status(400).json(new ApiError("CONTEST_NOT_ACTIVE"));
   }
+  // 4. judge against every test case (hidden ones included)
+  const result = await judgeSubmission(code, problem.testCases, {
+    timeLimitMs: problem.timeLimit,
+    memoryLimitMb: problem.memoryLimit,
+  });
 
-  const testCases = await prisma.testCase.findMany({
-    where: {
-      problemId,
+  // 5. points are proportional to test cases passed
+  const pointsEarned =
+    result.totalTestCases === 0
+      ? 0
+      : Math.floor(
+          (problem.points * result.testCasesPassed) / result.totalTestCases,
+        );
+  const response = await prisma.dsaSubmission.create({
+    data: {
+      code,
+      language: language.toLowerCase(),
+      status: result.status,
+      pointsEarned,
+      testCasesPassed: result.testCasesPassed,
+      totalTestCases: result.totalTestCases,
+      executionTime: result.executionTime,
+      userId: req.user!.id,
+      problemId: problem.id,
+    },
+    select: {
+      status: true,
+      pointsEarned: true,
+      testCasesPassed: true,
+      totalTestCases: true,
     },
   });
+  return res.status(201).json(new ApiResponse(response));
 };

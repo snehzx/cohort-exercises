@@ -133,6 +133,9 @@ export const submitMcq = async (req: Request, res: Response) => {
   if (!existContest) {
     return res.status(400).json(new ApiError("CONTEST_NOT_ACTIVE"));
   }
+  if (req.user!.role === "creator" && existContest.creatorId === req.user!.id) {
+    return res.status(403).json(new ApiError("FORBIDDEN"));
+  }
   const existQuestion = await prisma.mcqQuestion.findUnique({
     where: {
       id: questionId,
@@ -252,15 +255,25 @@ export const getLeaderboard = async (req: Request, res: Response) => {
       },
     }),
 
-    await prisma.mcqSubmission.groupBy({
+    prisma.mcqSubmission.groupBy({
       by: ["userId"],
+      where: {
+        question: {
+          contestId,
+        },
+      },
       _sum: {
         pointsEarned: true,
       },
     }),
 
-    await prisma.dsaSubmission.groupBy({
+    prisma.dsaSubmission.groupBy({
       by: ["userId", "problemId"],
+      where: {
+        problem: {
+          contestId,
+        },
+      },
       _max: {
         pointsEarned: true,
       },
@@ -282,8 +295,8 @@ export const getLeaderboard = async (req: Request, res: Response) => {
 
   const leaderBoard = users
     .map((user) => {
-      const mcq = mcqPoints.get(userId) ?? 0;
-      const dsa = dsaPoints.get(userId) ?? 0;
+      const mcq = mcqPoints.get(user.id) ?? 0;
+      const dsa = dsaPoints.get(user.id) ?? 0;
 
       return {
         userId: user.id,

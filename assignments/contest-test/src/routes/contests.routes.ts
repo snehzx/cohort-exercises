@@ -19,17 +19,8 @@ router.post(
   authoriseUser("creator"),
   addMcq,
 );
-router.post(
-  "/:contestId/mcq/:questionId/submit",
-  authenticateUser,
-  authoriseUser("contestee"),
-  submitMcq,
-);
+router.post("/:contestId/mcq/:questionId/submit", authenticateUser, submitMcq);
 router.post("/:contestId/dsa", authenticateUser, authoriseUser("creator"), dsa);
-router.get(
-  "/contests/:contestId/leaderboard",
-  authenticateUser,
-  getLeaderboard,
-);
+router.get("/:contestId/leaderboard", authenticateUser, getLeaderboard);
 
 export default router;
