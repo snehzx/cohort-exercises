@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <input id="email" , placeholder="email" />
+    <input id="username" , placeholder="username" />
+    <input id="password" , placeholder="password" />
+    <button id="signupBtn">signup</button>
+    <script type="module">
+      import { apiSignup } from "../api/api.js";
+
+      document
+        .getElementById("signupBtn")
+        .addEventListener("click", async () => {
+          await apiSignup(
+            document.getElementById("username").value,
+            document.getElementById("email").value,
+            document.getElementById("password").value,
+          );
+          window.location.href = "signin.html";
+        });
+    </script>
+  </body>
+</html>

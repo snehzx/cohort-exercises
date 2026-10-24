@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <input id="email" , placeholder="email" />
+    <input id="password" , placeholder="password" />
+    <button id="signinBtn">signin</button>
+    <script type="module">
+      import { apiSignin } from "../api/api.js";
+
+      document
+        .getElementById("signinBtn")
+        .addEventListener("click", async () => {
+          const token = await apiSignin(
+            document.getElementById("email").value,
+            document.getElementById("password").value,
+          );
+          localStorage.setItem("token", token);
+          window.location.href = "todos.html";
+        });
+    </script>
+  </body>
+</html>

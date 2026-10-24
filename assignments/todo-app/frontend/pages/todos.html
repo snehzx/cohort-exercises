@@ -1,0 +1,43 @@
+<!doctype html>
+<html>
+  <body>
+    <input id="title" placeholder="title" />
+    <input id="description" placeholder="description" />
+    <button id="addBtn">Add</button>
+    <ul id="list"></ul>
+    <script type="module">
+      import { apiGetTodos, apiAddTodo, apiDeleteTodo } from "../api/api.js";
+      if (!localStorage.getItem("token")) {
+        window.location.href = "signin.html";
+      }
+      async function loadTodos() {
+        render(await apiGetTodos());
+      }
+      async function deleteTodo(id) {
+        await apiDeleteTodo(id);
+        loadTodos();
+      }
+      function render(todos) {
+        const list = document.getElementById("list");
+        list.innerHTML = "";
+        todos.forEach((t) => {
+          const li = document.createElement("li");
+          li.textContent = t.title + " - " + t.description + " ";
+          const btn = document.createElement("button");
+          btn.textContent = "delete";
+          btn.addEventListener("click", () => deleteTodo(t._id));
+          li.appendChild(btn);
+          list.appendChild(li);
+        });
+      }
+      document.getElementById("addBtn").addEventListener("click", async () => {
+        await apiAddTodo(
+          document.getElementById("title").value,
+          document.getElementById("description").value,
+        );
+        loadTodos();
+      });
+      loadTodos();
+    </script>
+  </body>
+</html>
